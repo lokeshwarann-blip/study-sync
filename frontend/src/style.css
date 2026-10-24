@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Stitch theme tokens + resets.
+   Kept inside @layer base so Tailwind utilities (p-4, rounded-full...) still win. */
+@layer base {
+  :root {
+    --pink: #ffa6e6;
+    --dim: rgba(255, 166, 230, 0.55);
+    --line: rgba(255, 166, 230, 0.9);
+    --bg: #000;
+  }
+  *, ::before, ::after { border-radius: 0; }
+  html, body, #app { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--pink);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    margin: 0;
+  }
+  button { cursor: pointer; }
+  ::selection { background: var(--pink); color: #000; }
+}

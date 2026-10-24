@@ -1,0 +1,454 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>StudySync - Authentication &amp; Access</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Syne:wght@700;800&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-black: #050508;
+    --orchid-pink: #ffa7e4;
+    --orchid-dim: rgba(255, 167, 228, 0.15);
+    --border-pink: #ffa7e4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background-color: var(--bg-black);
+    color: var(--orchid-pink);
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .font-syne { font-family: 'Syne', sans-serif; }
+  .font-instrument { font-family: 'Instrument Serif', Georgia, serif; }
+
+  /* Tactical Grid & Hairlines */
+  .border-sharp {
+    border: 1px solid var(--border-pink);
+  }
+  .border-sharp-b {
+    border-bottom: 1px solid var(--border-pink);
+  }
+  .border-sharp-t {
+    border-top: 1px solid var(--border-pink);
+  }
+  .border-sharp-r {
+    border-right: 1px solid var(--border-pink);
+  }
+
+  /* Scanline / Subtle Texture */
+  .grid-pattern {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 167, 228, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 167, 228, 0.04) 1px, transparent 1px);
+  }
+
+  /* Interactive Elements */
+  .btn-editorial {
+    background-color: transparent;
+    color: var(--orchid-pink);
+    border: 1px solid var(--border-pink);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-editorial:hover {
+    background-color: var(--orchid-pink);
+    color: #000000;
+  }
+  .btn-solid-editorial {
+    background-color: var(--orchid-pink);
+    color: #000000;
+    border: 1px solid var(--border-pink);
+    font-weight: 700;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-solid-editorial:hover {
+    background-color: #000000;
+    color: var(--orchid-pink);
+  }
+
+  .input-editorial {
+    background: rgba(8, 8, 14, 0.75);
+    border: 1px solid rgba(255, 167, 228, 0.35);
+    color: var(--orchid-pink);
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .input-editorial:focus {
+    border-color: var(--orchid-pink);
+    background: rgba(15, 15, 26, 0.95);
+    box-shadow: 0 0 0 1px var(--orchid-pink);
+  }
+  .input-editorial::placeholder {
+    color: rgba(255, 167, 228, 0.3);
+  }
+
+  /* Tab toggle */
+  .tab-btn.active {
+    background-color: var(--orchid-pink);
+    color: #000000;
+  }
+  .tab-btn:not(.active) {
+    background-color: transparent;
+    color: var(--orchid-pink);
+  }
+</style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between select-none">
+
+<!-- BACKGROUND WEBGL ICEY SHARDS SHADER CANVAS -->
+<div class="fixed inset-0 w-full h-full pointer-events-none z-0">
+  <canvas id="bg-icey-shader" class="w-full h-full block opacity-60" width="1280" height="959"></canvas>
+  <div class="absolute inset-0 bg-black/65 backdrop-blur-[1px] grid-pattern"></div>
+</div>
+
+<!-- TOP STATUS MARQUEE & BAR -->
+
+
+<!-- MAIN AUTH INTERACTION AREA -->
+<main class="relative z-10 flex-1 flex items-center justify-center p-6 md:p-12">
+  <div class="w-full max-w-5xl border-sharp bg-black/90 backdrop-blur-xl shadow-2xl relative"><!-- Decorative Corner Targets -->
+    <div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#ffa7e4]"></div>
+    <div class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#ffa7e4]"></div>
+    <div class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#ffa7e4]"></div>
+    <div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#ffa7e4]"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12">
+      <!-- LEFT COLUMN: Editorial Branding -->
+      <div class="lg:col-span-5 p-8 lg:p-12 border-sharp-b lg:border-sharp-b-0 lg:border-sharp-r flex flex-col justify-between bg-black/60">
+        <div>
+          <div class="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase mb-4 text-[#ffa7e4]/70">
+            <span class="">✦ STUDY SYNC</span>
+            <span class="">•</span>
+            <span class="text-[#ffa7e4]">SRM RAMAPURAM</span>
+          </div>
+
+          <h1 class="font-syne text-4xl sm:text-5xl font-extrabold uppercase tracking-tight leading-none text-[#ffa7e4]">
+            STUDY<br>
+            SYNC<br>
+            <span class="font-instrument italic font-normal text-3xl sm:text-4xl text-white tracking-normal lowercase -mt-1 block">
+              srm ramapuram portal
+            </span>
+          </h1>
+
+          <div class="w-16 h-0.5 bg-[#ffa7e4] my-6"></div>
+
+          <p class="text-xs font-mono leading-relaxed text-[#ffa7e4]/80 mb-6">
+            SRM Institute of Science &amp; Technology, Ramapuram campus peer collaboration and study network. Authenticate with your institutional credentials to connect with peers, study groups, and academic tracks.
+          </p>
+        </div>
+
+        <div class="pt-8 mt-6 border-t border-[#ffa7e4]/20">
+          <div class="text-[10px] font-mono tracking-widest text-[#ffa7e4]/60 uppercase mb-1">CAMPUS ACCESS</div>
+          <p class="text-[11px] font-mono text-[#ffa7e4]/70 italic">
+            Exclusive portal for SRMIST Ramapuram faculty and enrolled students.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Authentication Interface -->
+      <div class="lg:col-span-7 p-8 lg:p-12 flex flex-col justify-center">
+        <!-- Mode Switcher Tabs -->
+        <div class="flex border-sharp mb-8 text-xs font-mono tracking-wider uppercase">
+          <button id="tab-login" onclick="switchTab('login')" class="tab-btn active flex-1 py-3 text-center font-bold transition-all">
+            ■ 01 / SIGN IN
+          </button>
+          <button id="tab-register" onclick="switchTab('register')" class="tab-btn flex-1 py-3 text-center font-bold border-l border-[#ffa7e4] transition-all">
+            □ 02 / CREATE ACCOUNT
+          </button>
+        </div>
+
+        <!-- FORM 1: SRM Sign In -->
+        <div id="form-login" class="space-y-6">
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5 flex justify-between">
+              <span class="">SRM EMAIL / REGISTRATION NUMBER</span>
+              <span class="text-[#ffa7e4]">@SRMIST.EDU.IN</span>
+            </div>
+            <div class="relative">
+              <input type="text" id="login-netid" value="ra2111003010000@srmist.edu.in" placeholder="netid@srmist.edu.in or Reg No." class="input-editorial w-full px-4 py-3 text-sm font-mono tracking-wide rounded-none">
+              <span class="absolute right-3.5 top-3.5 text-xs text-[#ffa7e4]/50 font-mono">SRM ID</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5 flex justify-between items-center">
+              <span class="">PASSWORD / ACCESS KEY</span>
+              <a href="#" class="text-[10px] hover:underline text-[#ffa7e4]">RESET CREDENTIALS?</a>
+            </div>
+            <div class="relative">
+              <input type="password" id="login-pwd" value="••••••••••••••••" placeholder="Enter your password" class="input-editorial w-full px-4 py-3 text-sm font-mono tracking-wide rounded-none">
+              <button type="button" onclick="togglePassVisibility('login-pwd')" class="absolute right-3 top-3 text-[11px] font-mono text-[#ffa7e4]/70 hover:text-[#ffa7e4] px-1.5 py-0.5 border border-[#ffa7e4]/40">
+                SHOW
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me / Session Persistence -->
+          <div class="flex items-center justify-between text-xs font-mono text-[#ffa7e4]/80 pt-1">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked="" class="accent-[#ffa7e4] rounded-none border-[#ffa7e4]">
+              <span class="">REMEMBER ME / PERSIST SESSION</span>
+            </label>
+            <span class="text-[10px] text-[#ffa7e4]/60 font-mono">CAMPUS SSO READY</span>
+          </div>
+
+          <!-- Submit Action Button -->
+          <div class="pt-2">
+            <button type="button" onclick="handleAuthSubmit('login')" class="btn-solid-editorial w-full py-4 text-sm font-mono tracking-widest uppercase flex items-center justify-center gap-3">
+              <span class="">LOG IN</span>
+              <span class="text-base">→</span>
+            </button>
+          </div>
+
+          <!-- SSO Divider -->
+          <div class="relative flex items-center justify-center py-2">
+            <div class="border-t border-[#ffa7e4]/30 w-full"></div>
+            <span class="bg-black px-3 text-[10px] font-mono tracking-widest text-[#ffa7e4]/60 uppercase">OR INSTITUTIONAL ACCESS</span>
+            <div class="border-t border-[#ffa7e4]/30 w-full"></div>
+          </div>
+
+          <!-- SRM Ramapuram SSO Button -->
+          <button type="button" onclick="handleAuthSubmit('sso')" class="btn-editorial w-full py-3 text-xs font-mono tracking-widest uppercase flex items-center justify-center gap-2">
+            <span class="text-sm">✦</span>
+            <span class="">SRM RAMAPURAM SSO LOGIN</span>
+          </button>
+        </div>
+
+        <!-- FORM 2: Create Account -->
+        <div id="form-register" class="space-y-5 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">FULL NAME</div>
+              <input type="text" placeholder="e.g. Rahul Sharma" class="input-editorial w-full px-4 py-2.5 text-sm font-mono tracking-wide rounded-none">
+            </div>
+            <div>
+              <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">REGISTRATION NUMBER / NETID</div>
+              <input type="text" placeholder="RA2111003010..." class="input-editorial w-full px-4 py-2.5 text-sm font-mono tracking-wide rounded-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">DEPARTMENT / PROGRAM</div>
+              <select class="input-editorial w-full px-4 py-2.5 text-xs font-mono rounded-none">
+                <option>B.Tech Computer Science &amp; Engg</option>
+                <option>B.Tech Information Technology</option>
+                <option>B.Tech Electronics &amp; Comm (ECE)</option>
+                <option>B.Tech AI &amp; Data Science</option>
+                <option>M.Tech Computer Science</option>
+              </select>
+            </div>
+            <div>
+              <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">CAMPUS BATCH</div>
+              <select class="input-editorial w-full px-4 py-2.5 text-xs font-mono rounded-none">
+                <option>SRM Ramapuram · Batch of 2025</option>
+                <option>SRM Ramapuram · Batch of 2026</option>
+                <option>SRM Ramapuram · Batch of 2027</option>
+                <option>SRM Ramapuram · Batch of 2028</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">OFFICIAL SRM EMAIL</div>
+            <input type="email" placeholder="student@srmist.edu.in" class="input-editorial w-full px-4 py-2.5 text-sm font-mono tracking-wide rounded-none">
+          </div>
+
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-widest text-[#ffa7e4]/70 mb-1.5">CREATE PASSWORD</div>
+            <input type="password" placeholder="Minimum 8 characters" class="input-editorial w-full px-4 py-2.5 text-sm font-mono tracking-wide rounded-none">
+          </div>
+
+          <div class="text-[11px] font-mono text-[#ffa7e4]/70 leading-relaxed pt-1">
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" checked="" class="accent-[#ffa7e4] mt-0.5">
+              <span class="">I confirm that I am an actively enrolled student at SRMIST Ramapuram campus.</span>
+            </label>
+          </div>
+
+          <!-- Register Action Button -->
+          <div class="pt-2">
+            <button type="button" onclick="handleAuthSubmit('register')" class="btn-solid-editorial w-full py-4 text-sm font-mono tracking-widest uppercase flex items-center justify-center gap-3">
+              <span class="">CREATE ACCOUNT &amp; ENTER</span>
+              <span class="text-base">→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Success/Feedback notification banner -->
+        <div id="auth-feedback" class="mt-4 p-3 border border-[#ffa7e4] bg-[#ffa7e4]/10 text-xs font-mono text-center hidden">
+          <span class="font-bold">✓ AUTHENTICATION SUCCESSFUL</span> — Redirecting to StudySync...
+        </div>
+      </div>
+    </div></div>
+</main>
+
+<!-- BOTTOM FOOTER (Consistent with Shell Design) -->
+
+
+<!-- PROCEDURAL WEBGL ICEY NIGHT BLUE SHADER SCRIPT -->
+<script>
+(function() {
+  const canvas = document.getElementById('bg-icey-shader');
+  if (!canvas) return;
+
+  function syncSize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+  }
+  window.addEventListener('resize', syncSize);
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+  const fs = `precision highp float;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform vec2 u_mouse;
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(234.34, 435.345));
+  p += dot(p, p + 34.23);
+  return fract(p.x * p.y);
+}
+
+float grainHash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
+// Icey Night Blue Shard Palette
+vec3 palette(float x) {
+  vec3 c0 = vec3(0.012, 0.027, 0.071); // #030712 deep midnight abyss
+  vec3 c1 = vec3(0.059, 0.169, 0.361); // #0f2b5c deep sapphire
+  vec3 c2 = vec3(0.133, 0.827, 0.933); // #22d3ee glacial cyan
+  vec3 c3 = vec3(0.878, 0.949, 0.996); // #e0f2fe arctic frost highlight
+  float f = clamp(x, 0.0, 1.0) * 3.0;
+  if (f < 1.0) return mix(c0, c1, smoothstep(0.0, 1.0, f));
+  if (f < 2.0) return mix(c1, c2, smoothstep(0.0, 1.0, f - 1.0));
+  return mix(c2, c3, smoothstep(0.0, 1.0, f - 2.0));
+}
+
+vec3 shade(vec2 uv, vec2 p, float t) {
+  float k = 2.0 + 0.48 * 6.0;
+  float v = sin(p.x * k + t) + sin(p.y * k * 0.8 - t * 0.7)
+    + sin((p.x + p.y) * k * 0.6 + t * 0.5)
+    + sin(length(p) * k * 1.2 - t);
+  return palette(0.5 + 0.5 * sin(v + 7.0));
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 screenUv = uv;
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+  
+  p *= 1.5;
+  float t = u_time * 0.86;
+  p += 0.156 * vec2(sin(t * 0.31), cos(t * 0.23));
+  
+  vec3 col = shade(uv, p, t);
+  
+  col = (col - 0.5) * 0.924 + 0.5;
+  col -= 0.35;
+  
+  float vd = length(screenUv - 0.5) * 1.4142;
+  col *= 1.0 - 0.61 * smoothstep(0.35, 1.0, vd);
+  
+  col += (grainHash(gl_FragCoord.xy + vec2(7.0 * 17.0, 7.0 * 31.0)) - 0.5) * 0.25;
+  
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+
+  function render(t) {
+    syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+
+// TAB SWITCHER LOGIC
+function switchTab(tab) {
+  const loginBtn = document.getElementById('tab-login');
+  const registerBtn = document.getElementById('tab-register');
+  const loginForm = document.getElementById('form-login');
+  const registerForm = document.getElementById('form-register');
+
+  if (tab === 'login') {
+    loginBtn.classList.add('active');
+    registerBtn.classList.remove('active');
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+  } else {
+    registerBtn.classList.add('active');
+    loginBtn.classList.remove('active');
+    registerForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+  }
+}
+
+function togglePassVisibility(id) {
+  const input = document.getElementById(id);
+  if (input.type === 'password') {
+    input.type = 'text';
+  } else {
+    input.type = 'password';
+  }
+}
+
+function handleAuthSubmit(type) {
+  const banner = document.getElementById('auth-feedback');
+  banner.classList.remove('hidden');
+  banner.innerHTML = `<span class="font-bold">✓ AUTHENTICATION HANDSHAKE COMPLETE</span> — Welcome Alex Chen. Redirecting to Study Lab Dashboard...`;
+  setTimeout(() => {
+    banner.classList.add('hidden');
+  }, 3500);
+}
+</script>
+
+
+
+
+
+</body></html>
